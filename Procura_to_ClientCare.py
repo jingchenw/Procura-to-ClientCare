@@ -23,10 +23,9 @@ for row in csv_reader:
 
 print service_type_desc
 
-file_name = raw_input('Please type in the raw data file name, without the file extension: ')
-
 # Open file for row counting
 print "Opening source file..."
+file_name = raw_input('Please type in the raw data file name, without the file extension: ')
 file_dir = 'input_files/'+str(file_name)+'.csv'
 csv_file = open(file_dir)
 csv_reader = csv.reader(csv_file)
@@ -57,13 +56,15 @@ inv_count = 0
 for row in raw_data:
     if row[0] == 'INVOICE':
         inv_count += 1
+print inv_count
 
 inv_data = [['' for x in range(27)] for y in range(inv_count)]
-for row_number in range(inv_count):
-    for row in raw_data:
-        if row[0] == 'INVOICE':
-            for column_count in range(27):
-                inv_data[row_number][column_count] = row[column_count]
+row_number = 0
+for row in raw_data:
+    if row[0] == 'INVOICE':
+        for column_count in range(27):
+            inv_data[row_number][column_count] = row[column_count]
+        row_number += 1
 
 # Change date format
 print "Changing date format..."
@@ -88,3 +89,32 @@ for row_number in range(inv_count):
     billing_sum[row_number][3] = inv_data[row_number][1]      # RECORD DATE
     billing_sum[row_number][4] = inv_data[row_number][12]     # AMOUNT
     billing_sum[row_number][5] = inv_data[row_number][11]     # INVOICE NUMBER
+    if inv_data[row_number][15] == 'CC':                      # NOTES
+        flag_count = 0
+        for row in service_type_desc:
+            if inv_data[row_number][16] == row[0]:
+                if inv_data[row_number][16] == 'CC':
+                    billing_sum[row_number][6] = row[1] + " " + inv_data[row_number][18] + " day/s"
+                else: billing_sum[row_number][6] = row[1]
+            else: flag_count += 1
+        if flag_count == len(service_type_desc):
+            billing_sum[row_number][6] = "Please update the Billing Service Type definition lookup table"
+    elif inv_data[row_number][16] == 'HCPADJCR':
+        for row in service_type_desc:
+            if row[0] == inv_data[row_number][16]:
+                billing_sum[row_number][6] = row[1]
+    elif inv_data[row_number][16] == 'HCPADJDB':
+        for row in service_type_desc:
+            if row[0] == inv_data[row_number][16]:
+                billing_sum[row_number][6] = row[1]
+    else: billing_sum[row_number][6] = inv_data[row_number][4] + " Service Fee"
+    billing_sum[row_number][7] = billing_sum[row_number][6]
+
+# Export
+print "Exproting..."
+output_name = raw_input('Enter the output file name, without file extension: ') + '.csv'
+output_dir = 'output_files/'+str(output_name)
+csv_file = open(output_dir, 'wb')
+csv_file_writerow = csv.writer(csv_file, delimiter=',', quoting=csv.QUOTE_NONE)
+for item in billing_sum:
+    csv_file_writerow.writerow(item)
