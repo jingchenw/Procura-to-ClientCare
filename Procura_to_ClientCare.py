@@ -1,6 +1,7 @@
 import csv
 import time
 import sys
+from operator import itemgetter
 
 # Prompt to type in file directory
 print 'Welcome!\n'
@@ -30,14 +31,17 @@ file_dir = 'input_files/'+str(file_name)+'.csv'
 csv_file = open(file_dir)
 csv_reader = csv.reader(csv_file)
 
-# Count the row
+# Count the INVOICE row
 print "Counting the rows..."
-data = list(csv_reader)
-row_count = len(data)
+inv_count = 0
+for row in csv_reader:
+    if row[0] == 'INVOICE':
+        inv_count += 1
+print inv_count
 
 # Create 2-D List
 print "Creating index..."
-raw_data = [['' for x in range(27)] for y in range(row_count)]
+inv_data = [['' for x in range(27)] for y in range(inv_count)]
 
 # Open file for data mapping
 print "Mapping data..."
@@ -47,20 +51,6 @@ csv_reader = csv.reader(csv_file)
 #Map data to list
 row_number = 0
 for row in csv_reader:
-    for column_count in range(27):
-        raw_data[row_number][column_count] = row[column_count]
-    row_number += 1
-
-# Filter invoices
-inv_count = 0
-for row in raw_data:
-    if row[0] == 'INVOICE':
-        inv_count += 1
-print inv_count
-
-inv_data = [['' for x in range(27)] for y in range(inv_count)]
-row_number = 0
-for row in raw_data:
     if row[0] == 'INVOICE':
         for column_count in range(27):
             inv_data[row_number][column_count] = row[column_count]
@@ -109,6 +99,11 @@ for row_number in range(inv_count):
                 billing_sum[row_number][6] = row[1]
     else: billing_sum[row_number][6] = inv_data[row_number][4] + " Service Fee"
     billing_sum[row_number][7] = billing_sum[row_number][6]
+
+# Sum-up (Excel Macro Function)
+billing_sum.sort(key=itemgetter(0,1,6,5,3))
+
+
 
 # Export
 print "Exproting..."
