@@ -22,8 +22,6 @@ for row in csv_reader:
     service_type_desc[row_number][1] = row[1]
     row_number += 1
 
-print service_type_desc
-
 # Open file for row counting
 print "Opening source file..."
 file_name = raw_input('Please type in the raw data file name, without the file extension: ')
@@ -37,7 +35,6 @@ inv_count = 0
 for row in csv_reader:
     if row[0] == 'INVOICE':
         inv_count += 1
-print inv_count
 
 # Create 2-D List
 print "Creating index..."
@@ -66,16 +63,16 @@ for row_number in range(inv_count):
 
 # Transfer data into BillingSum
 print "Transferring data..."
-billing_sum = [['' for x in range(8)] for y in range(inv_count)]
+billing_sum = [['' for x in range(7)] for y in range(inv_count)]
 row_number = 0
 for row_number in range(inv_count):
     billing_sum[row_number][0] = inv_data[row_number][8]      # URN
     billing_sum[row_number][1] = inv_data[row_number][20]     # COST CENTRE
-    if inv_data[row_number][22] == 'MOBEXP':                  # MASTER ACCT
+    if inv_data[row_number][22] == 'MOBILITYEXP' and inv_data[row_number][21] == 'PRIVATE':
+        billing_sum[row_number][2] = 'RESCONP'                # MASTER ACCT
+    elif inv_data[row_number][22] == 'MOBILITYEXP':
         billing_sum[row_number][2] = 'RESCON'
-    elif inv_data [row_number][22] == 'MOBEXPP':
-        billing_sum[row_number][2] = 'RESCON'
-    else: billing_sum[row_number][2] = 'RESCON'
+    else: billing_sum[row_number][2] = inv_data[row_number][22]
     billing_sum[row_number][3] = inv_data[row_number][1]      # RECORD DATE
     billing_sum[row_number][4] = inv_data[row_number][12]     # AMOUNT
     billing_sum[row_number][5] = inv_data[row_number][11]     # INVOICE NUMBER
@@ -98,12 +95,20 @@ for row_number in range(inv_count):
             if row[0] == inv_data[row_number][16]:
                 billing_sum[row_number][6] = row[1]
     else: billing_sum[row_number][6] = inv_data[row_number][4] + " Service Fee"
-    billing_sum[row_number][7] = billing_sum[row_number][6]
 
+print billing_sum
 # Sum-up (Excel Macro Function)
-billing_sum.sort(key=itemgetter(0,1,6,5,3))
+sum_up_dict = dict()
+for row in billing_sum:
+    key = str(row[0]) + str(row[1]) + str(row[2]) + str(row[3]) + str(row[5]) + str(row[6])
+    if key in sum_up_dict.keys():
+        #sum_up_dict[key][4] = ast.literal_eval(sum_up_dict[key][4]) + ast.literal_eval(row[4])
+        sum_up_dict[key][4] = float("{0:.2f}".format(float(sum_up_dict[key][4]) + float(row[4])))
+    else: sum_up_dict[key] = row
+    print sum_up_dict[key]
 
-
+output_list = sum_up_dict.values()
+output_list.sort(key=itemgetter(0))
 
 # Export
 print "Exproting..."
@@ -111,5 +116,5 @@ output_name = raw_input('Enter the output file name, without file extension: ') 
 output_dir = 'output_files/'+str(output_name)
 csv_file = open(output_dir, 'wb')
 csv_file_writerow = csv.writer(csv_file, delimiter=',', quoting=csv.QUOTE_NONE)
-for item in billing_sum:
+for item in output_list:
     csv_file_writerow.writerow(item)
