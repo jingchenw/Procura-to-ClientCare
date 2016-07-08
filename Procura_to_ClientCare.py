@@ -105,7 +105,6 @@ for row in billing_sum:
         #sum_up_dict[key][4] = ast.literal_eval(sum_up_dict[key][4]) + ast.literal_eval(row[4])
         sum_up_dict[key][4] = float("{0:.2f}".format(float(sum_up_dict[key][4]) + float(row[4])))
     else: sum_up_dict[key] = row
-    print sum_up_dict[key]
 
 output_list = sum_up_dict.values()
 output_list.sort(key=itemgetter(0))
