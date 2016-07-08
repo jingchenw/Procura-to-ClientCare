@@ -96,7 +96,6 @@ for row_number in range(inv_count):
                 billing_sum[row_number][6] = row[1]
     else: billing_sum[row_number][6] = inv_data[row_number][4] + " Service Fee"
 
-print billing_sum
 # Sum-up (Excel Macro Function)
 sum_up_dict = dict()
 for row in billing_sum:
