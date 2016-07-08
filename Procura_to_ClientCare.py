@@ -102,7 +102,6 @@ sum_up_dict = dict()
 for row in billing_sum:
     key = str(row[0]) + str(row[1]) + str(row[2]) + str(row[3]) + str(row[5]) + str(row[6])
     if key in sum_up_dict.keys():
-        #sum_up_dict[key][4] = ast.literal_eval(sum_up_dict[key][4]) + ast.literal_eval(row[4])
         sum_up_dict[key][4] = float("{0:.2f}".format(float(sum_up_dict[key][4]) + float(row[4])))
     else: sum_up_dict[key] = row
 
@@ -116,4 +115,10 @@ output_dir = 'output_files/'+str(output_name)
 csv_file = open(output_dir, 'wb')
 csv_file_writerow = csv.writer(csv_file, delimiter=',', quoting=csv.QUOTE_NONE)
 for item in output_list:
+    csv_file_writerow.writerow(item)
+
+inv_dir = 'output_files/INV_'+str(output_name)
+csv_file = open(inv_dir, 'wb')
+csv_file_writerow = csv.writer(csv_file, delimiter=',', quoting=csv.QUOTE_NONE)
+for item in inv_data:
     csv_file_writerow.writerow(item)
