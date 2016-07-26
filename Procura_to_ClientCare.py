@@ -45,7 +45,7 @@ print "Mapping data..."
 csv_file = open(file_dir)
 csv_reader = csv.reader(csv_file)
 
-#Map data to list
+# Map all INVOICE data to list
 row_number = 0
 for row in csv_reader:
     if row[0] == 'INVOICE':
@@ -53,7 +53,7 @@ for row in csv_reader:
             inv_data[row_number][column_count] = row[column_count]
         row_number += 1
 
-# Change date format
+# Change date format from YYYYMMDD to DD/MM/YYYY
 print "Changing date format..."
 for row_number in range(inv_count):
     from_date = inv_data[row_number][1]
@@ -97,6 +97,12 @@ for row_number in range(inv_count):
     else: billing_sum[row_number][6] = inv_data[row_number][4] + " Service Fee"
 
 # Sum-up (Excel Macro Function)
+# STEP 1 - Create a dictionary
+# STEP 2 - Use URN + COST CENTRE + MASTER ACCT + RECORD DATE + INVOICE NUMBER + NOTES as key, and put AMOUNT as value
+# STEP 3 - If the key has not appeared in the dictionary, add the key in, as well as the entire line of data
+#          If the key has already existed in the dictionary, update the value as a sum of existing value and the current AMOUNT
+# STEP 4 - Repeat STEP 2 & 3, and a final output contains the sum up of client billing amount would be generated
+# STEP 5 - Transfer the final data from the dictionary into a list for further data processing
 sum_up_dict = dict()
 for row in billing_sum:
     key = str(row[0]) + str(row[1]) + str(row[2]) + str(row[3]) + str(row[5]) + str(row[6])
