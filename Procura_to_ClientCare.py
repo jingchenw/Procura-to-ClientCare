@@ -122,7 +122,7 @@ csv_file_writerow = csv.writer(csv_file, delimiter=',', quoting=csv.QUOTE_NONE)
 for item in output_list:
     csv_file_writerow.writerow(item)
 
-inv_dir = 'output_files/INV_'+str(output_name)
+inv_dir = 'output_files/AR_'+str(output_name)
 csv_file = open(inv_dir, 'wb')
 csv_file_writerow = csv.writer(csv_file, delimiter=',', quoting=csv.QUOTE_NONE)
 for item in inv_data:
