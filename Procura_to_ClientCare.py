@@ -116,8 +116,6 @@ for row in billing_sum:
 output_list = sum_up_dict.values()
 output_list.sort(key=itemgetter(0))
 
-print output_list
-
 # Copy the template file into Resi Admin Folder
 print "Copying template..."
 shutil.copy2("output_files/CareSys-ResWorkfile-v206-Procura_3Nov2016.xlsm", "\\\Pacnsw\shared\PACData\FILE STORE\SHARED FILES\RESACC\Community Care Programs\PROCURA Billing files\CareSys_Temp.xlsm")
