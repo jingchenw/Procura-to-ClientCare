@@ -1,6 +1,9 @@
 import csv
 import time
 import sys
+import shutil
+import openpyxl
+import os
 from operator import itemgetter
 
 # Prompt to type in file directory
@@ -66,7 +69,7 @@ print "Transferring data..."
 billing_sum = [['' for x in range(7)] for y in range(inv_count)]
 row_number = 0
 for row_number in range(inv_count):
-    billing_sum[row_number][0] = inv_data[row_number][8]      # URN
+    billing_sum[row_number][0] = int(inv_data[row_number][8])      # URN
     billing_sum[row_number][1] = inv_data[row_number][20]     # COST CENTRE
     if inv_data[row_number][22] == 'MOBILITYEXP' and inv_data[row_number][21] == 'PRIVATE':
         billing_sum[row_number][2] = 'RESCONP'                # MASTER ACCT
@@ -74,8 +77,8 @@ for row_number in range(inv_count):
         billing_sum[row_number][2] = 'RESCON'
     else: billing_sum[row_number][2] = inv_data[row_number][22]
     billing_sum[row_number][3] = inv_data[row_number][1]      # RECORD DATE
-    billing_sum[row_number][4] = inv_data[row_number][12]     # AMOUNT
-    billing_sum[row_number][5] = inv_data[row_number][11]     # INVOICE NUMBER
+    billing_sum[row_number][4] = float(inv_data[row_number][12])     # AMOUNT
+    billing_sum[row_number][5] = int(inv_data[row_number][11])     # INVOICE NUMBER
     if inv_data[row_number][15] == 'CC':                      # NOTES
         flag_count = 0
         for row in service_type_desc:
@@ -113,17 +116,31 @@ for row in billing_sum:
 output_list = sum_up_dict.values()
 output_list.sort(key=itemgetter(0))
 
-# Export
-print "Exproting..."
-output_name = raw_input('Enter the output file name, without file extension: ') + '.csv'
-output_dir = 'output_files/'+str(output_name)
-csv_file = open(output_dir, 'wb')
-csv_file_writerow = csv.writer(csv_file, delimiter=',', quoting=csv.QUOTE_NONE)
-for item in output_list:
-    csv_file_writerow.writerow(item)
+print output_list
 
-inv_dir = 'output_files/AR_'+str(output_name)
-csv_file = open(inv_dir, 'wb')
-csv_file_writerow = csv.writer(csv_file, delimiter=',', quoting=csv.QUOTE_NONE)
-for item in inv_data:
-    csv_file_writerow.writerow(item)
+# Copy the template file into Resi Admin Folder
+print "Copying template..."
+shutil.copy2("output_files/CareSys-ResWorkfile-v206-Procura_3Nov2016.xlsm", "\\\Pacnsw\shared\PACData\FILE STORE\SHARED FILES\RESACC\Community Care Programs\PROCURA Billing files\CareSys_Temp.xlsm")
+
+# Open file from Resi Admin folder
+print "Final processing..."
+wb = openpyxl.load_workbook("\\\Pacnsw\shared\PACData\FILE STORE\SHARED FILES\RESACC\Community Care Programs\PROCURA Billing files\CareSys_Temp.xlsm",keep_vba=True)
+
+# Write data into the template
+ws = wb.get_sheet_by_name('Paste Here')
+
+for j in range(len(output_list)):
+    ws['A' + str(j + 2)].value = output_list[j][0]
+    ws['B' + str(j + 2)].value = output_list[j][1]
+    ws['C' + str(j + 2)].value = output_list[j][2]
+    ws['D' + str(j + 2)].value = output_list[j][3]
+    ws['E' + str(j + 2)].value = output_list[j][4]
+    ws['F' + str(j + 2)].value = output_list[j][5]
+    ws['G' + str(j + 2)].value = output_list[j][6]
+
+output_name = raw_input('Enter the output file name, without file extension: ') + '.xlsm'
+
+# Save final output
+print "Renaming file..."
+wb.save("\\\Pacnsw\shared\PACData\FILE STORE\SHARED FILES\RESACC\Community Care Programs\PROCURA Billing files\\" + output_name)
+os.remove("\\\Pacnsw\shared\PACData\FILE STORE\SHARED FILES\RESACC\Community Care Programs\PROCURA Billing files\CareSys_Temp.xlsm")
