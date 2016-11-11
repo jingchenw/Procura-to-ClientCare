@@ -1,0 +1,1 @@
+Copy "et_xmlfile","openpyxl" and "jdcal.py" into C:\Python27\Lib
